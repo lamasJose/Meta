@@ -2,6 +2,7 @@ import random
 import math
 import time
 import copy
+import matplotlib.pyplot as plt
 
 cobertura_distritos = {
     1: [1, 2, 4, 5],
@@ -22,9 +23,13 @@ cobertura_distritos = {
     16: [13, 15, 16]
 }
 
+temperaturas = []
+num_estaciones = []
+
 def generarSolucion(solucion_actual):
     distritos_cubiertos = []
     nueva_solucion = copy.deepcopy(solucion_actual)
+
     while len(distritos_cubiertos) != 16:
         distritos_cubiertos = []
         distrito = random.randrange(16)
@@ -43,7 +48,6 @@ def recocidoSimulado():
     temperatura = 10000000
     epsilon = 0.0001
     alpha = 0.99
-
     solucion_actual = []
     for _ in range(16):
         distrito = random.choice([0, 1])
@@ -52,7 +56,7 @@ def recocidoSimulado():
     inicio_tiempo = time.time()
 
     while temperatura > epsilon:
-        for _ in range(100):
+        for _ in range(30):
 
             siguiente_solucion = generarSolucion(solucion_actual)
 
@@ -61,6 +65,8 @@ def recocidoSimulado():
             if delta < 0 or random.uniform(0, 1) < math.exp(-delta / temperatura):
                 solucion_actual = siguiente_solucion
 
+        num_estaciones.append(solucion_actual.count(1))
+        temperaturas.append(temperatura)
         temperatura *= alpha
 
     tiempo_transcurrido = time.time() - inicio_tiempo
@@ -76,3 +82,8 @@ for pos, valor in enumerate(resultado):
     if valor == 1:
         print(f"La estación del distrito {pos + 1} cubre los distritos {cobertura_distritos[pos + 1]}")
 
+plt.plot(temperaturas, num_estaciones, 'o-')
+plt.title('Recocido Simulado: Temperatura vs. Número de Estaciones')
+plt.xlabel('Temperatura')
+plt.ylabel('Número de Estaciones')
+plt.show()
