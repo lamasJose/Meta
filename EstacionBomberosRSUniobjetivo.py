@@ -46,17 +46,16 @@ def generarSolucion(solucion_actual):
 
 def recocidoSimulado():
     temperatura = 10000000
-    epsilon = 0.0001
+    epsilon = 0.001
     alpha = 0.99
+    nrep = 30
     solucion_actual = []
     for _ in range(16):
         distrito = random.choice([0, 1])
         solucion_actual.append(distrito)
 
-    inicio_tiempo = time.time()
-
     while temperatura > epsilon:
-        for _ in range(30):
+        for _ in range(nrep):
 
             siguiente_solucion = generarSolucion(solucion_actual)
 
@@ -69,12 +68,14 @@ def recocidoSimulado():
         temperaturas.append(temperatura)
         temperatura *= alpha
 
-    tiempo_transcurrido = time.time() - inicio_tiempo
-    print(f"Tiempo de ejecución: {tiempo_transcurrido} segundos")
-
     return solucion_actual
 
+inicio_tiempo = time.time()
+
 resultado = recocidoSimulado()
+
+tiempo_transcurrido = time.time() - inicio_tiempo
+print(f"Tiempo de ejecución: {tiempo_transcurrido} segundos")
 
 print("Solución Final:")
 print(f"Número de estaciones necesarias: {resultado.count(1)}")
@@ -83,7 +84,7 @@ for pos, valor in enumerate(resultado):
         print(f"La estación del distrito {pos + 1} cubre los distritos {cobertura_distritos[pos + 1]}")
 
 plt.plot(temperaturas, num_estaciones, 'o-')
-plt.title('Recocido Simulado: Temperatura vs. Número de Estaciones')
+plt.title(f'Recocido Simulado: Temperatura vs. Número de Estaciones\nTiempo de ejecución: {tiempo_transcurrido:.2f} segundos')
 plt.xlabel('Temperatura')
 plt.ylabel('Número de Estaciones')
 plt.show()

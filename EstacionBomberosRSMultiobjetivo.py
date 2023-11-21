@@ -26,9 +26,6 @@ cobertura_distritos = {
 temperaturas = []
 num_estaciones = []
 
-def distritosSinEstacion(dicc):
-    return (set(cobertura_distritos.keys()) - set(dicc.keys()))
-
 def conversionDiccionarioLista(dicc):
     lista_resultante = []
 
@@ -49,28 +46,26 @@ def generarSolucion(solucion_actual):
 
 def recocidoSimulado():
     temperatura = 10000000
-    epsilon = 0.000001
+    epsilon = 0.001
     alpha = 0.99
-
+    nrep = 30
     solucion_actual = {}
     distritos_iniciales = random.randint(1, 16)
     for _ in range(distritos_iniciales):
         distrito = random.randint(1, 16)
         solucion_actual[distrito] = cobertura_distritos[distrito]
 
-    inicio_tiempo = time.time()
-
     while temperatura > epsilon:
-        for _ in range(30):
+        for _ in range(nrep):
 
             siguiente_solucion = generarSolucion(solucion_actual)
 
             distritos_cubiertos_sa = conversionDiccionarioLista(solucion_actual)
             distritos_cubiertos_ss = conversionDiccionarioLista(siguiente_solucion)
-            distritos_no_cubiertos_sa = 16 - len(set(distritos_cubiertos_sa))
-            distritos_no_cubiertos_ss = 16 - len(set(distritos_cubiertos_ss))
+            num_distritos_no_cubiertos_sa = 16 - len(set(distritos_cubiertos_sa))
+            num_distritos_no_cubiertos_ss = 16 - len(set(distritos_cubiertos_ss))
 
-            delta = (len(siguiente_solucion)*0.001 + distritos_no_cubiertos_ss) - (len(solucion_actual)*0.001 + distritos_no_cubiertos_sa)
+            delta = (len(siguiente_solucion) + num_distritos_no_cubiertos_ss) - (len(solucion_actual) + num_distritos_no_cubiertos_sa)
             
             if delta < 0 or random.uniform(0, 1) < math.exp(-delta / temperatura):
                 solucion_actual = siguiente_solucion
@@ -79,12 +74,14 @@ def recocidoSimulado():
         temperaturas.append(temperatura)
         temperatura *= alpha
 
-    tiempo_transcurrido = time.time() - inicio_tiempo
-    print(f"Tiempo de ejecución: {tiempo_transcurrido} segundos")
-
     return solucion_actual
 
+inicio_tiempo = time.time()
+
 resultado = recocidoSimulado()
+
+tiempo_transcurrido = time.time() - inicio_tiempo
+print(f"Tiempo de ejecución: {tiempo_transcurrido} segundos")
 
 print("Solución Final:")
 print(f"Número de estaciones necesarias: {len(resultado)}")
@@ -92,7 +89,7 @@ for clave, valor in resultado.items():
     print(f"La estación del distrito {clave} cubre los distritos {cobertura_distritos[clave]}")
 
 plt.plot(temperaturas, num_estaciones, 'o-')
-plt.title('Recocido Simulado: Temperatura vs. Número de Estaciones')
+plt.title(f'Recocido Simulado: Temperatura vs. Número de Estaciones\nTiempo de ejecución: {tiempo_transcurrido:.2f} segundos')
 plt.xlabel('Temperatura')
 plt.ylabel('Número de Estaciones')
 plt.show()
